@@ -1,10 +1,24 @@
 #include <stdio.h>
+#include <stdint.h>
 
-int main() {
-    FILE *fptr = fptr = fopen("rom.mif", "w");
+int main(const int argc, char **argv) {
+    if (argc != 2) {
+        fprintf(stderr, "invalid number of arguments");
+        return 1;
+    }
 
-    if (fptr == NULL) {
-        printf("Error opening file!\n");
+    FILE *in = fopen(argv[1],"r");
+
+    if (in == NULL) {
+        fprintf(stderr, "error opening file\n");
+        return 1;
+    }
+
+    FILE *out = fopen("rom.mif", "w");
+
+    if (out == NULL) {
+        fprintf(stderr, "error writing to rom.mif");
+        fclose(in);
         return 1;
     }
 
@@ -14,14 +28,14 @@ int main() {
                 "DATA_RADIX = HEX;		% Data Format %\n\n"
                 "CONTENT\n"
                 "BEGIN\n\n"
-                "[0..479F]	:	0;\n\n\0",fptr);
+                "[0000..479F]	:	0;\n\n\0",out);
 
-    unsigned int curr_addr = 0x47A0;
-    fprintf(fptr, "[%X..7FFF]	:	0;\n\n", curr_addr);
+    uint16_t curr_addr = 0x47A0;
+    fprintf(out, "[%X..7FFF]	:	0;\n\n", curr_addr);
 
-    fputs("END ;\0", fptr);
+    fputs("END ;\0", out);
 
-    fclose(fptr);
+    fclose(out);
 
     return 0;
 }
