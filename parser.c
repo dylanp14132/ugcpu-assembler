@@ -50,3 +50,5 @@ bool assemble_line(const char* raw_line, const uint16_t line_number, encoded_ins
 
     return false;
 }
+
+/* */
