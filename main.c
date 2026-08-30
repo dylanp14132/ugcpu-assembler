@@ -3,7 +3,7 @@
 
 int main(const int argc, char **argv) {
     if (argc != 2) {
-        fprintf(stderr, "invalid number of arguments");
+        fprintf(stderr, "invalid number of arguments\n");
         return 1;
     }
 
@@ -17,7 +17,7 @@ int main(const int argc, char **argv) {
     FILE *out = fopen("rom.mif", "w");
 
     if (out == NULL) {
-        fprintf(stderr, "error writing to rom.mif");
+        fprintf(stderr, "error writing to rom.mif\n");
         fclose(in);
         return 1;
     }
