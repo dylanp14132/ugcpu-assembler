@@ -11,7 +11,7 @@ static void strip_comment(const char* line) {
     if (semi != NULL) {*semi  = '\0';}
 }
 
-/* Remove leading whitespace */
+/* Remove trailing/leading whitespace */
 static void trim(char* str) {
     char* start = str;
     while (isspace((unsigned char)*start)) start++;
