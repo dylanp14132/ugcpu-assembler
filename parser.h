@@ -9,6 +9,6 @@ typedef struct {
     int line_number;
 } encoded_instruction_t;
 
-bool assemble_line(const char* raw_line, uint16_t line_number, encoded_instruction_t* out, bool* is_blank, char* error, size_t error_length);
+bool assemble_line(const char* raw_line, uint16_t line_number, encoded_instruction_t* out, bool* is_blank);
 
 #endif /* UGCPU_ASSEMBLER_PARSER_H */
