@@ -12,7 +12,7 @@ static void strip_comment(const char* line) {
 }
 
 /* Remove trailing/leading whitespace */
-static void trim(char* str) {
+void trim(char* str) {
     char* start = str;
     while (isspace((unsigned char)*start)) ++start;
     memmove(str, start, strlen(start) + 1);
@@ -76,9 +76,11 @@ bool assemble_line(const char* raw_line, const uint16_t line_number, encoded_ins
             if (val < 0 || val > 31) {return false;}
             operand_bits = (uint8_t)val;
             break;
+        default:
+            break;
     }
 
-    out->word = (uint8_t)((def->opcode << 5) | (operand_bits & 0x1F));
+    out->word = (uint8_t)((def->opcode << 5) | (operand_bits & 0x1F)); // TODO: Change last 4 bits to opcode and first 4 to operand
 
     return true;
 }

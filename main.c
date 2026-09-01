@@ -1,20 +1,22 @@
 #include <stdio.h>
-#include <stdint.h>
+#include "parser.h"
 
-int main(const int argc, char **argv) {
+#define START_ADDR 0x47A0
+
+int main(const int argc, char** argv) {
     if (argc != 2) {
         fprintf(stderr, "invalid number of arguments\n");
         return 1;
     }
 
-    FILE *in = fopen(argv[1],"r");
+    FILE* in = fopen(argv[1],"r");
 
     if (in == NULL) {
         fprintf(stderr, "error opening file\n");
         return 1;
     }
 
-    FILE *out = fopen("rom.mif", "w");
+    FILE* out = fopen("rom.mif", "w");
 
     if (out == NULL) {
         fprintf(stderr, "error writing to rom.mif\n");
@@ -27,14 +29,30 @@ int main(const int argc, char **argv) {
                 "ADDRESS_RADIX = HEX;	% Address Format %\n"
                 "DATA_RADIX = HEX;		% Data Format %\n\n"
                 "CONTENT\n"
-                "BEGIN\n\n"
-                "[0000..479F]	:	0;\n\n\0",out);
+                "BEGIN\n\n\0", out);
 
-    uint16_t curr_addr = 0x47A0;
-    fprintf(out, "[%X..7FFF]	:	0;\n\n", curr_addr);
+    fprintf(out, "[0000..%X]    :    0;\n\n", START_ADDR - 1);
 
+    uint16_t curr_addr = START_ADDR;
+
+    char buf[256] = {0};
+
+    while (fgets(buf, sizeof(buf), in) != NULL) {
+        encoded_instruction_t instr;
+        bool is_blank;
+        if (!assemble_line(buf, curr_addr, &instr, &is_blank)) {
+            fprintf(stderr, "error encoding instruction: \"%s\"\n", buf);
+            return 1;
+        }
+        if (!is_blank) {
+            trim(buf);
+            fprintf(out, "%X            :	 %X;  --%s\n", curr_addr, instr.word, buf);
+            ++curr_addr;
+        }
+    }
+
+    fprintf(out, "\n[%X..7FFF]    :	 0;\n\n", curr_addr);
     fputs("END ;\0", out);
-
     fclose(out);
 
     return 0;
