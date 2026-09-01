@@ -10,14 +10,12 @@ int main(const int argc, char** argv) {
     }
 
     FILE* in = fopen(argv[1],"r");
-
     if (in == NULL) {
         fprintf(stderr, "error opening file\n");
         return 1;
     }
 
     FILE* out = fopen("rom.mif", "w");
-
     if (out == NULL) {
         fprintf(stderr, "error writing to rom.mif\n");
         fclose(in);
@@ -30,30 +28,31 @@ int main(const int argc, char** argv) {
                 "DATA_RADIX = HEX;		% Data Format %\n\n"
                 "CONTENT\n"
                 "BEGIN\n\n\0", out);
-
     fprintf(out, "[0000..%X]    :    0;\n\n", START_ADDR - 1);
 
     uint16_t curr_addr = START_ADDR;
-
     char buf[256] = {0};
 
     while (fgets(buf, sizeof(buf), in) != NULL) {
         encoded_instruction_t instr;
-        bool is_blank;
-        if (!assemble_line(buf, curr_addr, &instr, &is_blank)) {
-            fprintf(stderr, "error encoding instruction: \"%s\"\n", buf);
+        uint8_t is_blank;
+        if (!assemble_line(buf, &instr, &is_blank)) {
+            fprintf(stderr, "error encoding instruction: \"%s\"", buf);
             return 1;
         }
-        if (!is_blank) {
-            trim(buf);
-            fprintf(out, "%X            :	 %X;  --%s\n", curr_addr, instr.word, buf);
-            ++curr_addr;
-        }
+        if (is_blank) {continue;}
+        format_line(buf);
+        fprintf(out, "%X            :	 0%X;  --%s\n", curr_addr, instr.word >> 4, buf);
+        ++curr_addr;
+        if (!instr.has_op) {continue;}
+        fprintf(out, "%X            :	 0%X;\n", curr_addr, instr.word & 0x0F);
+        ++curr_addr;
     }
 
     fprintf(out, "\n[%X..7FFF]    :	 0;\n\n", curr_addr);
     fputs("END ;\0", out);
     fclose(out);
+    printf("Success!\n");
 
     return 0;
 }

@@ -1,18 +1,16 @@
-#include "parser.h"
-#include "opcodes.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
+#include "parser.h"
+#include "opcodes.h"
 
-/* Remove everything past the ';' */
 static void strip_comment(const char* line) {
     char* semi = strchr(line, ';');
     if (semi != NULL) {*semi  = '\0';}
 }
 
-/* Remove trailing/leading whitespace */
-void trim(char* str) {
+static void trim(char* str) {
     char* start = str;
     while (isspace((unsigned char)*start)) ++start;
     memmove(str, start, strlen(start) + 1);
@@ -20,19 +18,24 @@ void trim(char* str) {
     while (len > 0 && isspace((unsigned char)str[len-1])) {str[--len] = '\0';}
 }
 
-static bool parse_number(const char* tok, long* out) {
+static uint8_t parse_number(const char* tok, long* out) {
     if (tok[0] == '#') {++tok;}
     char* endptr;
     const long val = strtol(tok, &endptr, 0);
-    if (*endptr != 0 || endptr == tok) {return false;}
+    if (*endptr != 0 || endptr == tok) {return 0;}
     *out = val;
-    return true;
+    return 1;
 }
 
-bool assemble_line(const char* raw_line, const uint16_t line_number, encoded_instruction_t* out, bool* is_blank) {
-    *is_blank = false;
-    out->line_number = line_number;
+void format_line(char* str) { /* TODO : Include functionality to get rid of spaces between mnemonic and operand */
+    strip_comment(str);
+    trim(str);
+}
+
+uint8_t assemble_line(const char* raw_line, encoded_instruction_t* out, uint8_t* is_blank) {
+    *is_blank = 0;
     out->word = 0;
+    out->has_op = 0;
 
     char buffer[128];
     strncpy(buffer, raw_line,sizeof(buffer) - 1);
@@ -42,8 +45,8 @@ bool assemble_line(const char* raw_line, const uint16_t line_number, encoded_ins
     trim(buffer);
 
     if (buffer[0] == '\0') {
-        *is_blank = true;
-        return true;
+        *is_blank = 1;
+        return 1;
     }
 
     char* space = buffer;
@@ -58,29 +61,27 @@ bool assemble_line(const char* raw_line, const uint16_t line_number, encoded_ins
     }
 
     const instruction_t* def = lookup_opcode(buffer);
-    if (def == NULL) {
-        return false;
-    }
+    if (def == NULL) {return 0;}
 
     uint8_t operand_bits = 0;
 
     switch (def->operand_type) {
         case OP_NONE:
-            if (operand_str[0] != '\0') {return false;}
+            if (operand_str[0] != '\0') {return 0;}
             break;
         case OP_ADDR:
         case OP_DATA:
-            if (operand_str[0] == '\0') {return false;}
+            if (operand_str[0] == '\0') {return 0;}
             long val = 0;
-            if (!parse_number(operand_str, &val)) {return false;}
-            if (val < 0 || val > 31) {return false;}
+            if (!parse_number(operand_str, &val)) {return 0;}
+            if (val < 0 || val > 15) {return 0;}
             operand_bits = (uint8_t)val;
+            out->has_op = 1;
             break;
         default:
             break;
     }
 
-    out->word = (uint8_t)((def->opcode << 5) | (operand_bits & 0x1F)); // TODO: Change last 4 bits to opcode and first 4 to operand
-
-    return true;
+    out->word = (uint8_t)((def->opcode << 4) | (operand_bits & 0x0F));
+    return 1;
 }

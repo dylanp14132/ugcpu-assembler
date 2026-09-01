@@ -2,14 +2,13 @@
 #define UGCPU_ASSEMBLER_PARSER_H
 
 #include <stdint.h>
-#include <stdbool.h>
 
 typedef struct {
     uint8_t word;
-    int line_number;
-} encoded_instruction_t; // TODO : Add status bit or byte for length for whether there is an operand
+    uint8_t has_op;
+} encoded_instruction_t;
 
-void trim(char* str);
-bool assemble_line(const char* raw_line, uint16_t line_number, encoded_instruction_t* out, bool* is_blank);
+void format_line(char* str);
+uint8_t assemble_line(const char* raw_line, encoded_instruction_t* out, uint8_t* is_blank);
 
 #endif /* UGCPU_ASSEMBLER_PARSER_H */

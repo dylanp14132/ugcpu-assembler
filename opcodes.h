@@ -15,6 +15,6 @@ typedef struct {
     operand_t operand_type;
 } instruction_t;
 
-const instruction_t* lookup_opcode(const char *mnemonic);
+const instruction_t* lookup_opcode(const char* mnemonic);
 
 #endif /* UGCPU_ASSEMBLER_OPCODES_H */
