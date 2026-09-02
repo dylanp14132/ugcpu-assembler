@@ -27,9 +27,13 @@ static uint8_t parse_number(const char* tok, long* out) {
     return 1;
 }
 
-void format_line(char* str) { /* TODO : Include functionality to get rid of spaces between mnemonic and operand */
+void format_line(char* str) {
     strip_comment(str);
     trim(str);
+    char* space = str;
+    while (!isspace((unsigned char)*space)) ++space;
+    ++space;
+    if (*space) {trim(space);}
 }
 
 uint8_t assemble_line(const char* raw_line, encoded_instruction_t* out, uint8_t* is_blank) {

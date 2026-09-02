@@ -48,6 +48,7 @@ int main(const int argc, char** argv) {
         encoded_instruction_t instr;
         uint8_t is_blank;
         if (!assemble_line(buf, &instr, &is_blank)) {
+            format_line(buf);
             fprintf(stderr, "error encoding instruction: \"%s\"", buf);
             return 1;
         }
