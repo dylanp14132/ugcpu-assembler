@@ -21,7 +21,11 @@ static void trim(char* str) {
 static uint8_t parse_number(const char* tok, long* out) {
     if (tok[0] == '#') {++tok;}
     char* endptr;
-    const long val = strtol(tok, &endptr, 0);
+    long val = 0;
+    if (tok[0] == '$') {
+        ++tok;
+        val = strtol(tok, &endptr, 16);
+    } else {val = strtol(tok, &endptr, 10);}
     if (*endptr != 0 || endptr == tok) {return 0;}
     *out = val;
     return 1;
@@ -73,9 +77,11 @@ uint8_t assemble_line(const char* raw_line, encoded_instruction_t* out, uint8_t*
         case OP_NONE:
             if (operand_str[0] != '\0') {return 0;}
             break;
-        case OP_ADDR:
         case OP_DATA:
             if (operand_str[0] == '\0') {return 0;}
+            if (operand_str[0] != '#') {return 0;}
+        case OP_ADDR:
+            if (def->operand_type == OP_ADDR && operand_str[0] == '#') {return 0;}
             long val = 0;
             if (!parse_number(operand_str, &val)) {return 0;}
             if (val < 0 || val > 15) {return 0;}
