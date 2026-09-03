@@ -1,6 +1,6 @@
 #include <stdio.h>
 #include <string.h>
-#include "parser.h"
+#include "../include/parser.h"
 
 #define START_ADDR 0x47A0
 

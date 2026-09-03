@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
-#include "parser.h"
+#include "../include/parser.h"
 #include "opcodes.h"
 
 static void strip_comment(const char* line) {
