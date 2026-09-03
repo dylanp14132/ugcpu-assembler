@@ -1,5 +1,5 @@
 #include <string.h>
-#include "../include/opcodes.h"
+#include "opcodes.h"
 
 static const instruction_t isa_table[] = {
     {.mnemonic = "TAB",  .opcode = 0b000, .operand_type = OP_NONE},
