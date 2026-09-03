@@ -1,13 +1,13 @@
-LDAA #7
-TAB
+LDAA #7 ; A = 7
+TAB     ; B = A
 
-LDAA #3
-ABA
-SAL
+LDAA #3 ; A = 3;
+ABA     ; A = A + B + Cin
+SAL     ; A << 1
 
-ABA ; Random comment
-SAR
-JMP 2
+ABA     ; A = A + B + Cin
+SAR     ; A >> 1
+JMP 2   ; PC = 2
 
-LDAA #9 ; This code will never run
+LDAA #$C ; This code will never run
 ABA
